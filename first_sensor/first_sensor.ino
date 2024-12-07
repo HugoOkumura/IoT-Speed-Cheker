@@ -20,8 +20,8 @@ uint64_t address[2] = { 0x3030303030LL, 0x3030303030LL};
 
 uint8_t origem = 16;
 uint8_t destino = 22;
-char envio[BUFFER_SIZE];
-char recebe[BUFFER_SIZE];
+char envio[4];
+// char recebe[4];
 
 #define TRIG 14
 #define ECHO 15
@@ -92,9 +92,9 @@ void loop(void) {
   if(s_index < r_index){
     // Serial.println("enviando");
     bool enviou = false;
-    envio[4] = buffer_distancia[s_index];
-    envio[5] = buffer_tempo[s_index];
-    enviou = comms.sendPackage(&envio[0], BUFFER_SIZE, destino);
+    envio[3] = buffer_distancia[s_index];
+    // envio[5] = buffer_tempo[s_index];
+    enviou = comms.sendPackage(&envio[0], 4, destino);
     if(enviou) s_index++;
   }
   
