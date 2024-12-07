@@ -1,8 +1,6 @@
 #include <SPI.h>
 #include "RF24.h"
 
-#include <stdint.h>
-
 #define CE_PIN 7
 #define CSN_PIN 8
 
