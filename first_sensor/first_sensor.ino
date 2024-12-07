@@ -29,7 +29,8 @@ char recebe[BUFFER_SIZE];
 #define SIGNAL 0;
 
 Ultrasonic ultrassom(TRIG, ECHO);
-uint8_t buffer[BUFFER_SIZE];
+uint8_t buffer_distancia[BUFFER_SIZE];
+uint8_t buffer_tempo[BUFFER_SIZE];
 uint8_t s_index = 0; //send index
 uint8_t r_index = 0; //read index
 uint8_t distancia = 0;
@@ -79,7 +80,8 @@ void loop(void) {
     leitura = millis();
 
     if(distancia > 0 && distancia < 10){
-      buffer[r_index] = distancia;
+      buffer_distancia[r_index] = distancia;
+      buffer_tempo[r_index] = leitura;
       r_index++;
       r_index = r_index % BUFFER_SIZE;
     }
@@ -88,11 +90,12 @@ void loop(void) {
   }
 
   if(s_index < r_index){
-    Serial.println("enviando");
-    envio[4] = buffer[s_index];
-    envio[5] = SIGNAL;
-    s_index++;
-    comms.sendPackage(&envio[0], BUFFER_SIZE, destino);
+    // Serial.println("enviando");
+    bool enviou = false;
+    envio[4] = buffer_distancia[s_index];
+    envio[5] = buffer_tempo[s_index];
+    enviou = comms.sendPackage(&envio[0], BUFFER_SIZE, destino);
+    if(enviou) s_index++;
   }
   
   delay(500);
