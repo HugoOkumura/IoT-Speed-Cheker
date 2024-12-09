@@ -29,7 +29,6 @@ char envio[4];
 #define SIGNAL 0;
 
 Ultrasonic ultrassom(TRIG, ECHO);
-
 uint8_t buffer_distancia[BUFFER_SIZE];
 uint8_t buffer_tempo[BUFFER_SIZE];
 uint8_t s_index = 0; //send index
@@ -71,7 +70,10 @@ void setup(void) {
   radio.stopListening();
   radio.flush_rx();
 
+  for(int i = 0; i < BUFFER_SIZE; i++){
+    buffer_distancia[i] = -1;
 
+  }
 }
 
 void loop(void) {
@@ -81,19 +83,21 @@ void loop(void) {
     leitura = millis();
 
     if(distancia > 0 && distancia < 10){
-      buffer_distancia[r_index] = distancia;
-      buffer_tempo[r_index] = leitura;
+      int i = r_index % BUFFER_SIZE
+      buffer_distancia[i] = distancia;
+      // buffer_tempo[r_index] = leitura;
       r_index++;
-      r_index = r_index % BUFFER_SIZE;
+      // r_index = r_index % BUFFER_SIZE;
     }
 
     last_state = distancia;
   }
 
-  if(s_index < r_index){
+  if(s_index < r_index && buffer_distancia[s_index] !=-1){
     // Serial.println("enviando");
     bool enviou = false;
-    envio[3] = buffer_distancia[s_index];
+    int j = s_index % BUFFER_SIZE;
+    envio[3] = buffer_distancia[j];
     // envio[5] = buffer_tempo[s_index];
     enviou = comms.sendPackage(&envio[0], 4, destino);
     if(enviou) s_index++;
