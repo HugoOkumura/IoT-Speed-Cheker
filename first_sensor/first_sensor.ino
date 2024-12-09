@@ -29,6 +29,7 @@ char envio[4];
 #define SIGNAL 0;
 
 Ultrasonic ultrassom(TRIG, ECHO);
+
 uint8_t buffer_distancia[BUFFER_SIZE];
 uint8_t buffer_tempo[BUFFER_SIZE];
 uint8_t s_index = 0; //send index
@@ -98,7 +99,6 @@ void loop(void) {
     if(enviou) s_index++;
   }
   
-  delay(500);
 }
 
 
