@@ -1,5 +1,3 @@
-
-
 #include <SPI.h>
 #include "RF24.h"
 #include "printf.h"
@@ -19,10 +17,6 @@ Ultrasonic ultrasonic(TRIG_PIN,ECHO_PIN); //INICIALIZANDO OS PINOS DO ARDUINO
 long dist = 0;
 float sec = 0;
 
-unsigned long startTime = 0; // início do cronômetro
-unsigned long stopTime = 0;  // término do cronômetro
-bool cronometro = false; // funciona ou n
-
 #define TIMEOUTRECV 1000000 //us
 #define TIMEOUTSEND 6000 //us
 
@@ -38,7 +32,7 @@ uint64_t address[2] = { 0x3030303030LL, 0x3030303030LL};
 
 char payloadT[5]="Hello";
 char payloadR[5];
-uint8_t origem[] = {50, 16, 22};
+uint8_t origem=11;
 
 bool envia(char* pacote, uint8_t destino, uint8_t tamanho, uint8_t controle, unsigned long timeout){
   pacote[0]=22;
@@ -51,15 +45,16 @@ bool envia(char* pacote, uint8_t destino, uint8_t tamanho, uint8_t controle, uns
     radio.stopListening();
     if (!radio.testCarrier()) {
       radio.write(&pacote[0], tamanho);
-      Serial.println("R");
+      Serial.println("Not detect");
       return true;
     }else{
-      Serial.println("O");
+      Serial.println("Detect");
       delayMicroseconds(1);
     }
   }
   return false;
 }
+
 bool recebe(char* pacote, uint8_t destino, uint8_t tamanho, uint8_t controle, unsigned long timeout){
   unsigned long start_timer = micros();  
   radio.startListening();
@@ -122,7 +117,6 @@ bool recebeTrem(char* pacote, uint8_t tamanho, uint8_t destino){
   return true;
 }
 
-
 void setup(void) {
 
   Serial.begin(500000);
@@ -158,6 +152,25 @@ void setup(void) {
 }
 
 void loop(void) {
+  sec = ultrasonic.Timing();
+
+  //dist = ultrasonic.convert(sec, Ultrasonic::CM);
+  dist = ultrasonic.Ranging(CM);
+  if(dist != 0 && dist <= 50){
+    Serial.println("Presença detectada!");
+
+    uint8_t destino = 1;
+    char msg[] = "PRES";
+
+    bool sucesso = enviaTrem(msg, sizeof(msg), destino);
+
+    if(sucesso){
+      Serial.println("Receive");
+    }else{
+      Serial.println("Not receive");
+    }
+    delay(100);
+  }
 
   uint8_t destino=0;
   if (Serial.available()){
@@ -165,22 +178,13 @@ void loop(void) {
     Serial.print("Destino = ");
     Serial.println(destino);
   }
-
+/*
   bool sucesso = recebeTrem(&payloadR[0],5,destino);
   if(sucesso){
     printAula(&payloadR[0],5);
-    if (strncmp(mensagem, "PRES", 4) == 0) {
-      startTime = micro();
-      Serial.println("Presença detectada pelo outro Arduino!");
-      cronometro = true;
-    }else if (strncmp(mensagem, "PRES", 4) == 0 && cronometroAtivo) {
-      stopTime = micros(); 
-      cronometroAtivo = false; 
-      long duracao = stopTime - startTime; 
-    }
-  }
+  }*/
 }
-
+/*
 void printAula(char *texto, byte tamanho){
   Serial.print(int(texto[0]));
   Serial.print(int(texto[1]));
@@ -188,4 +192,4 @@ void printAula(char *texto, byte tamanho){
     Serial.print(char(texto[i]));
   }
   Serial.println();
-}
+}*/
