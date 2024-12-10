@@ -20,7 +20,7 @@ uint64_t address[2] = { 0x3030303030LL, 0x3030303030LL};
 
 uint8_t origem = 22;
 uint8_t destino1 = 16;
-uint8_t destino2 = 0;
+uint8_t destino2 = 50;
 
 // char envio[4];
 char recebe[4];
@@ -92,12 +92,12 @@ void loop(void) {
     recebeu2 = comms.receivePackage(&recebe[0], 4, destino2);
     if(recebeu2){
       buffer_sensor2[s2_index]  = micros();
-      s2_index;
+      s2_index++;
     }
 
     if(s1_index == s2_index && buffer_sensor1[0] != -1 && buffer_sensor2[0] != -1){
       long int d_tempo = buffer_sensor2[s2_index] - buffer_sensor1[s1_index];
-      long velocidade = distancia / d_tempo;
+      long velocidade = distancia1 / d_tempo;
       Serial.print(origem);
       Serial.print(velocidade);
       Serial.prinln();
