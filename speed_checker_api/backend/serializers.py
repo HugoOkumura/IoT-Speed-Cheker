@@ -5,4 +5,4 @@ from .models import Radar
 class RadarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Radar
-        fields = ['Speed', 'timestamp', 'limit']
+        fields = ['__all__']

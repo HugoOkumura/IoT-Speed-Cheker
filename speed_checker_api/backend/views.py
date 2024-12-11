@@ -8,11 +8,10 @@ from .models import Radar
 from .serializers import RadarSerializer
 # Create your views here.
 
-
 class SpeedLogs(APIView):
 
     def get(self, resquest):
-        data = Radar.objects.all()
+        data = Radar.objects.all().order_by('timestamp','speed')
         serializer = RadarSerializer(data, many=True)
         return Response(serializer, status=status.HTTP_200_OK)
     

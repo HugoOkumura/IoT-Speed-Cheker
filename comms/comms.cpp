@@ -14,7 +14,16 @@ bool Comms::sendPackage(char* package, uint8_t packageSize, uint8_t destino){
     enviou = this->_send(&controle[0], 3, RTS, destino, TIMEOUTSEND);
     if(enviou){
         recebeu = this->_receive(&controle[0], 3, CTS, destino, TIMEOUTRECV);
-    } else{
+    } else{#define CE_PIN 7
+#define CSN_PIN 8
+
+#define TIMEOUTRECV 1000000  //us
+#define TIMEOUTSEND 6000     //us
+
+#define ACK 1
+#define RTS 2
+#define CTS 3
+#define DATA 4
         return false;
     }
     if(recebeu){
