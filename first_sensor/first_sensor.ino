@@ -18,7 +18,7 @@
 #define CSN_PIN 8
 
 #define TIMEOUTRECV 1000000  //us
-#define TIMEOUTSEND 6000     //us
+#define TIMEOUTSEND 600000   //us
 
 #define ACK 1
 #define RTS 2
@@ -30,9 +30,9 @@ uint64_t address[2] = { 0x3030303030LL, 0x3030303030LL};
 
 #define BUFFER_SIZE 5
 
-uint8_t origem = 16;
+uint8_t origem = 50;
 uint8_t destino = 22;
-char envio[4];
+uint8_t envio[4];
 // char recebe[4];
 
 #define TRIG 14
@@ -98,10 +98,8 @@ void loop(void) {
     if(distancia > 0 && distancia < 10){
       int i = r_index % BUFFER_SIZE;
       buffer_distancia[i] = distancia;
-      Serial.println(distancia);
-      // buffer_tempo[r_index] = leitura;
+      // Serial.println(i);
       r_index++;
-      // r_index = r_index % BUFFER_SIZE;
     }
 
     last_state = distancia;
@@ -111,37 +109,39 @@ void loop(void) {
     // Serial.println("enviando");
     bool enviou = false;
     int j = s_index % BUFFER_SIZE;
+    Serial.println(buffer_distancia[j]);
     envio[3] = buffer_distancia[j];
-    // envio[5] = buffer_tempo[s_index];
-    // enviou = comms.sendPackage(&envio[0], 4, destino);
+
     enviou = sendPackage(&envio[0], 4, destino);
     if(enviou){
       s_index++;
-      Serial.println("enviou");
+      // Serial.println("enviou");
     } 
   }
   
 }
 
-bool sendPackage(char* package, uint8_t packageSize, uint8_t destino){
-    char controle[3];
+bool sendPackage(uint8_t* package, uint8_t packageSize, uint8_t destino){
+    uint8_t controle[3];
     uint8_t ctrl_size = 3;
     bool enviou = false;
     bool recebeu = false;
 
-    enviou = _send(&controle[0], ctrl_size, RTS, destino, TIMEOUTSEND);
+    enviou = send(&controle[0], ctrl_size, RTS, destino, TIMEOUTSEND);
     if(enviou){
-        recebeu = _receive(&controle[0], ctrl_size, CTS, destino, TIMEOUTRECV);
+        // Serial.println("RTS");
+        recebeu = receive(&controle[0], ctrl_size, CTS, destino, TIMEOUTRECV);
     } else{
         return false;
     }
     if(recebeu){
-        enviou = _send(&package[0], packageSize, DATA, destino, TIMEOUTSEND);
+        // Serial.println("CTS");
+        enviou = send(&package[0], packageSize, DATA, destino, TIMEOUTSEND);
     } else{
         return false;
     }
     if(enviou){
-        recebeu = _receive(&controle[0], ctrl_size, ACK, destino, TIMEOUTRECV);
+        recebeu = receive(&controle[0], ctrl_size, ACK, destino, TIMEOUTRECV);
     } else {
         return false;
     }
@@ -149,10 +149,11 @@ bool sendPackage(char* package, uint8_t packageSize, uint8_t destino){
     return true;
 }
 
-bool _send(char* package, uint8_t packageSize, uint8_t controle, uint8_t destino, unsigned long timeout){
+bool send(uint8_t* package, uint8_t packageSize, uint8_t controle, uint8_t destino, unsigned long timeout){
     package[0] = destino;
     package[1] = origem;
     package[2] = controle;
+
     unsigned long start_timer = micros();
     while(micros() - start_timer < timeout){
         radio.startListening();
@@ -160,43 +161,17 @@ bool _send(char* package, uint8_t packageSize, uint8_t controle, uint8_t destino
         radio.stopListening();
         if (!radio.testCarrier()){
             radio.write(&package[0], packageSize);
-            // Serial.println("R");
+            // Serial.println("SS");
             return true;
         } else{
-            // Serial.println("O");
+            // Serial.println("ES");
             delayMicroseconds(150);
         }
     }
     return false;
 }
 
-bool receivePackage( char* package, uint8_t packageSize, uint8_t destino){
-    char controle[3];
-    uint8_t ctrl_size = 3;
-    bool recebeu = false;
-    bool enviou = false;
-
-    recebeu = _receive(&controle[0], ctrl_size, RTS, destino, TIMEOUTRECV);
-    if(recebeu){
-        enviou = _send(&controle[0], ctrl_size, CTS, destino, TIMEOUTSEND);
-    } else{
-        return false;
-    }
-    if (enviou){
-        recebeu = _receive(&package[0], packageSize, DATA, destino,TIMEOUTRECV);
-    } else{
-        return false;
-    }
-    if(recebeu){
-        enviou = _send(&controle[0], ctrl_size, ACK, destino, TIMEOUTSEND);
-    } else{
-        return false;
-    }
-    return true;
-
-}
-
-bool _receive(char* package, uint8_t packageSize, uint8_t controle, uint8_t destino, unsigned long timeout){
+bool receive(uint8_t* package, uint8_t packageSize, uint8_t controle, uint8_t destino, unsigned long timeout){
     unsigned long start_timer = micros();
     radio.startListening();
 
