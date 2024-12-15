@@ -30,7 +30,7 @@ uint64_t address[2] = { 0x3030303030LL, 0x3030303030LL};
 
 #define BUFFER_SIZE 5
 
-uint8_t origem = 16;
+uint8_t origem = 16; //sensor1: 16 - sensor2: 50
 uint8_t destino = 22;
 uint8_t envio[4];
 // char recebe[4];
@@ -115,7 +115,7 @@ void loop(void) {
     enviou = sendPackage(&envio[0], 4, destino);
     if(enviou){
       s_index++;
-      // Serial.println("enviou");
+      Serial.println("enviou");
     } 
   }
   

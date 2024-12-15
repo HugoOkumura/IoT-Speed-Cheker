@@ -1,11 +1,16 @@
 import serial
+import api_send as s
 
-ser = serial.Serial('/dev/ttyUSB2', 500000)
-# ser = serial.Serial()
 
 def read_from_serial():
-    try:
-        data = ser.readline().decode('utf-8').strip()
-        return data
-    except Exception as e:
-        return None
+    ser = serial.Serial('/dev/ttyUSB0', 500000)
+
+    while True:
+        try:
+            if ser.in_waiting > 0:
+                data = ser.readline().decode('utf-8').strip()
+                print(f"Received: {data}")
+                s.send_to_api(data)
+        except Exception as e:
+            print(f"ERR: {e}")
+        

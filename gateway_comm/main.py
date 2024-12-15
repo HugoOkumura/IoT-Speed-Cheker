@@ -1,10 +1,9 @@
-import api_send as send
-import read_serial as read
-import time
+import read_serial as r
 
 if __name__ == "__main__":
-    while True:
-        data = read.read_from_serial()
-        if data:
-            send.send_to_api(data)
-        time.sleep(1)
+    print("Reading from serial.")
+    r.read_from_serial()
+    # data = r.read_from_serial()
+    # if data:
+    # s.send_to_api(data)
+    # time.sleep(1):

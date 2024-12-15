@@ -47,7 +47,7 @@ long int buffer_sensor1[BUFFER_SIZE];
 long int buffer_sensor2[BUFFER_SIZE];
 uint8_t s1_index = 0; //sensor1 index
 uint8_t s2_index = 0; //sensor2 index
-uint8_t distancia = 10;
+uint8_t distancia = 50;
 
 // Comms comms(origem, &radio);
 
@@ -76,7 +76,7 @@ void setup(void) {
   radio.setChannel(100);
   
   printf_begin();
-  radio.printPrettyDetails();
+  // radio.printPrettyDetails();
   
   radio.startListening();
   radio.stopListening();
@@ -98,9 +98,9 @@ void loop(void) {
       s1_index++;
       int i = s1_index % BUFFER_SIZE;
       buffer_sensor1[i] = micros();
-      Serial.println("recebeu 1");
-      send_to_serial(&recebe[0], 4);
-      Serial.println();
+      // Serial.println("recebeu 1");
+      // send_to_serial(&recebe[0], 4);
+      // Serial.println();
     }
 
     recebeu2 = receivePackage(&recebe[0], 4, destino2);
@@ -108,9 +108,9 @@ void loop(void) {
       s2_index++;
       int j = s2_index % BUFFER_SIZE;
       buffer_sensor2[s2_index]  = micros();
-      Serial.println("recebeu 2");
-      send_to_serial(&recebe[0], 4);
-      Serial.println();
+      // Serial.println("recebeu 2");
+      // send_to_serial(&recebe[0], 4);
+      // Serial.println();
     }
 
     if(s1_index == s2_index && buffer_sensor1[0] != -1 && buffer_sensor2[0] != -1){
@@ -119,9 +119,10 @@ void loop(void) {
       payload[1] = distancia;                                           // distancia
       payload[2] = distancia / payload[0];                                // velocidade
       bool limite = false;
-      if(payload[2] > 10){
+      if(payload[2] > 60){
         limite = false;
       }
+
       payload[3] = limite;
       send_to_serial(&payload[0], 4);
       Serial.println();
@@ -198,7 +199,7 @@ bool _receive(uint8_t* package, uint8_t packageSize, uint8_t controle, uint8_t d
     return false;
 }
 
-void send_to_serial(uint8_t* payload, uint8_t size){
+void send_to_serial(byte* payload, uint8_t size){
   for(int i = 0; i < size; i++){
     Serial.print(payload[i]);
   }

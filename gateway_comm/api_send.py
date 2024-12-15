@@ -4,6 +4,7 @@ url = "http://127.0.0.1:8000/radar_list/"
 
 def send_to_api(data):
     try:
+        # print(data)
         tempo = data[0]
         distancia = data[1]
         velocidade = data[2]
