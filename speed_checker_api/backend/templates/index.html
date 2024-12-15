@@ -1,0 +1,60 @@
+<!DOCTYPE hmtl>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Speed Checker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background-color: beige;
+            margin: 0;
+            padding: 0;
+        }
+        li{
+            list-style: none;
+        }
+        .log{
+            border: 2px solid green;
+            padding: 20px;
+            margin: 10px;
+            width: 600px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        #over{
+            color: red;
+        }
+        #under{
+            color: green;
+        }
+        #header{
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="header">Lista de Leituras</h1>
+    <ul>
+        {% for log in data %}
+            <li>
+                <div class="log">
+                    <div>
+                        {% if log.limit %}
+                            <h2 id="over">{{ log.timestamp}} - {{log.velocidade}} km/h</h2>
+                        {% else %}
+                        <h2 id="under">{{ log.timestamp}} - {{log.velocidade}} km/h</h2>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+        {% empty %}
+            <li>
+                <h2>Não há leituras feitas</h2>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

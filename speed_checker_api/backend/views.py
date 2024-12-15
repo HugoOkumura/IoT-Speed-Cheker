@@ -10,10 +10,14 @@ from .serializers import RadarSerializer
 
 class SpeedLogs(APIView):
 
-    def get(self, resquest):
-        data = Radar.objects.all().order_by('timestamp','speed')
-        serializer = RadarSerializer(data, many=True)
-        return Response(serializer, status=status.HTTP_200_OK)
+    def get(self, request):
+        data = Radar.objects.all().order_by('timestamp','velocidade')
+
+        if request.headers.get('Accept') == 'application/json':
+            serializer = RadarSerializer(data, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return render(request, 'index.html', {'data': data})
     
     def post(self, request):
         serializer = RadarSerializer(data=request.data)
@@ -21,3 +25,12 @@ class SpeedLogs(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+'''
+{
+"tempo":10,
+"distancia": 10,
+"velocidade": 1, 
+"limite": False
+}
+'''

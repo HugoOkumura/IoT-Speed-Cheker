@@ -21,5 +21,5 @@ from backend.views import SpeedLogs
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('radar_list/', SpeedLogs.as_view(), name="radar_api"),
+    path('', SpeedLogs.as_view(), name="radar_api"),
 ]

@@ -98,9 +98,9 @@ void loop(void) {
       s1_index++;
       int i = s1_index % BUFFER_SIZE;
       buffer_sensor1[i] = micros();
-      // Serial.println("recebeu 1");
-      // send_to_serial(&recebe[0], 4);
-      // Serial.println();
+      Serial.println("recebeu 1");
+      send_to_serial(&recebe[0], 4);
+      Serial.println();
     }
 
     recebeu2 = receivePackage(&recebe[0], 4, destino2);
@@ -108,21 +108,21 @@ void loop(void) {
       s2_index++;
       int j = s2_index % BUFFER_SIZE;
       buffer_sensor2[s2_index]  = micros();
-      // Serial.println("recebeu 2");
-      // send_to_serial(&recebe[0], 4);
-      // Serial.println();
+      Serial.println("recebeu 2");
+      send_to_serial(&recebe[0], 4);
+      Serial.println();
     }
 
     if(s1_index == s2_index && buffer_sensor1[0] != -1 && buffer_sensor2[0] != -1){
       uint8_t payload[4];
       payload[0] = buffer_sensor2[s2_index] - buffer_sensor1[s1_index];  // tempo
       payload[1] = distancia;                                           // distancia
-      payload[2] = distancia / d_tempo;                                // velocidade
+      payload[2] = distancia / payload[0];                                // velocidade
       bool limite = false;
       if(payload[2] > 10){
-        limite = false
+        limite = false;
       }
-      payload[3] = limite
+      payload[3] = limite;
       send_to_serial(&payload[0], 4);
       Serial.println();
       // Serial.print(origem);
