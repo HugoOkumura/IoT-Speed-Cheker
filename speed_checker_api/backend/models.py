@@ -5,9 +5,9 @@ from django.utils import timezone
 
 
 class Radar(models.Model):
-    tempo = models.FloatField()
-    distancia = models.FloatField()
-    velocidade = models.FloatField()
+    tempo = models.IntegerField()
+    distancia = models.IntegerField()
+    velocidade = models.IntegerField()
     limite = models.BooleanField(default=False)
     timestamp = models.DateField(default=timezone.now)
 

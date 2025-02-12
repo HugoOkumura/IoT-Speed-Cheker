@@ -20,6 +20,7 @@ class SpeedLogs(APIView):
         return render(request, 'index.html', {'data': data})
     
     def post(self, request):
+        print(request.data)
         serializer = RadarSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

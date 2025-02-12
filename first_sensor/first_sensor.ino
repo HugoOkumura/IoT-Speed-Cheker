@@ -17,8 +17,8 @@
 #define CE_PIN 7
 #define CSN_PIN 8
 
-#define TIMEOUTRECV 1000000  //us
-#define TIMEOUTSEND 600000   //us
+#define TIMEOUTRECV 2000000  //us
+#define TIMEOUTSEND 5000000   //us
 
 #define ACK 1
 #define RTS 2
@@ -28,9 +28,9 @@
 RF24 radio(CE_PIN, CSN_PIN);
 uint64_t address[2] = { 0x3030303030LL, 0x3030303030LL};
 
-#define BUFFER_SIZE 5
+#define BUFFER_SIZE 10
 
-uint8_t origem = 16; //sensor1: 16 - sensor2: 50
+uint8_t origem = 50; //sensor1: 16 - sensor2: 50
 uint8_t destino = 22;
 uint8_t envio[4];
 // char recebe[4];
@@ -52,7 +52,7 @@ long leitura = 0;
 // Comms comms(origem, &radio);
 
 void setup(void) {
-  Serial.begin(500000);
+  Serial.begin(115200);
   
     // Setup and configure rf radio
   if (!radio.begin()) {
@@ -73,7 +73,7 @@ void setup(void) {
   radio.openWritingPipe(address[0]);  // always uses pipe 0
   radio.openReadingPipe(1, address[1]);  // using pipe 1
 
-  radio.setChannel(100);
+  radio.setChannel(37);
   
   printf_begin();
   radio.printPrettyDetails();
@@ -106,7 +106,7 @@ void loop(void) {
   }
 
   if(s_index < r_index && buffer_distancia[s_index] !=-1){
-    // Serial.println("enviando");
+     Serial.println("enviando");
     bool enviou = false;
     int j = s_index % BUFFER_SIZE;
     Serial.println(buffer_distancia[j]);
@@ -129,43 +129,42 @@ bool sendPackage(uint8_t* package, uint8_t packageSize, uint8_t destino){
 
     enviou = send(&controle[0], ctrl_size, RTS, destino, TIMEOUTSEND);
     if(enviou){
-        // Serial.println("RTS");
+        Serial.println("RTS");
         recebeu = receive(&controle[0], ctrl_size, CTS, destino, TIMEOUTRECV);
     } else{
         return false;
     }
     if(recebeu){
-        // Serial.println("CTS");
-        enviou = send(&package[0], packageSize, DATA, destino, TIMEOUTSEND);
+        Serial.println("CTS");
+      enviou = send(&package[0], packageSize, DATA, destino, TIMEOUTSEND);
     } else{
         return false;
     }
     if(enviou){
         recebeu = receive(&controle[0], ctrl_size, ACK, destino, TIMEOUTRECV);
     } else {
-        return false;
+       return false;
     }
 
     return true;
 }
 
-bool send(uint8_t* package, uint8_t packageSize, uint8_t controle, uint8_t destino, unsigned long timeout){
-    package[0] = destino;
-    package[1] = origem;
+bool send(uint8_t* package, uint8_t packageSize, uint8_t controle, uint8_t destino, unsigned long timeout) {
+    package[0] = origem;  // <-- Inverter se necessário
+    package[1] = destino; // <-- Inverter se necessário
     package[2] = controle;
 
     unsigned long start_timer = micros();
-    while(micros() - start_timer < timeout){
+    while (micros() - start_timer < timeout) {
         radio.startListening();
         delayMicroseconds(70);
         radio.stopListening();
-        if (!radio.testCarrier()){
+        if (!radio.testCarrier()) {
             radio.write(&package[0], packageSize);
-            // Serial.println("SS");
+            Serial.println("v");
             return true;
-        } else{
-            // Serial.println("ES");
-            delayMicroseconds(150);
+        } else {
+            delayMicroseconds(100);
         }
     }
     return false;
@@ -178,11 +177,14 @@ bool receive(uint8_t* package, uint8_t packageSize, uint8_t controle, uint8_t de
     while(micros() - start_timer < timeout){
         if (radio.available()){
             radio.read(&package[0], packageSize);
-            if(package[0]==origem && package[1]==destino && package[2]==controle) return true;
-
+            if(package[0]==origem && package[1]==destino && package[2]==controle){
+              return true;
+            }
             radio.flush_rx();
         }
     }
 
+
+
     return false;
-}
+} 
